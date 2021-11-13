@@ -19,7 +19,7 @@ public class Frame extends JFrame {
     private Frame(){
         super("Grammar generator");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setBounds(200, 100, 800, 500);
+        setBounds(200, 100, 850, 500);
         setLayout(new BorderLayout());
 
         JPanel inputPane = new JPanel();
@@ -38,7 +38,6 @@ public class Frame extends JFrame {
         sizePanel.setLayout(new BoxLayout(sizePanel, BoxLayout.X_AXIS));
         add(sizePanel, BorderLayout.NORTH);
         JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.X_AXIS));
         add(menuPanel, BorderLayout.SOUTH);
 
         JButton validate = new JButton("Validate");
