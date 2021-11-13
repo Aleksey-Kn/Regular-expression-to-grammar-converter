@@ -20,12 +20,12 @@ public class FromExpressionGenerator {
         if (regular.charAt(0) == '('
                 && regular.charAt(regular.length() - 1) == '*'
                 && indexCloseFor(regular) == regular.length() - 2)
-            results = manyStep(results, split(regular.substring(1, regular.length() - 2), '|'));
+            results = manyStep(results, split(regular.substring(1, regular.length() - 2), '+'));
         else {
             if (regular.charAt(0) == '(' && indexCloseFor(regular) == regular.length() - 1)
-                results = oneStep(results, split(regular.substring(1, regular.length() - 1), '|'));
+                results = oneStep(results, split(regular.substring(1, regular.length() - 1), '+'));
             else
-                results = oneStep(results, split(regular, '|'));
+                results = oneStep(results, split(regular, '+'));
         }
         return results.stream()
                 .filter(s -> s[0].length() <= maxLength)
