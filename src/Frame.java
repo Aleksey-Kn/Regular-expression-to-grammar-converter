@@ -3,18 +3,16 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.*;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
 
 public class Frame extends JFrame {
     private boolean editExpression = true;
     private boolean editGrammar = true;
     private FromExpressionGenerator fromExpressionGenerator;
     private FromGrammarGenerator fromGrammarGenerator;
-    private List<String[]> stringsFromExpression;
-    private List<String[]> stringsFromGrammar;
+    private List<String[]> stringsFromExpression = new LinkedList<>();
+    private List<String[]> stringsFromGrammar = new LinkedList<>();
     boolean normalState = true;
 
     private Frame() {
@@ -81,55 +79,67 @@ public class Frame extends JFrame {
 
         rightDelete.addActionListener(l -> {
             int ind = Integer.parseInt(index.getText());
-            if (ind > 0 && ind < stringsFromGrammar.size()) {
+            if (ind >= 0 && ind < stringsFromGrammar.size()) {
                 stringsFromGrammar.remove(ind);
                 rightChainsPanel.remove(ind);
+                rightChainsPanel.updateUI();
             }
         });
         leftDelete.addActionListener(l -> {
             int ind = Integer.parseInt(index.getText());
-            if (ind > 0 && ind < stringsFromExpression.size()) {
+            if (ind >= 0 && ind < stringsFromExpression.size()) {
                 stringsFromExpression.remove(ind);
                 leftChainsPanel.remove(ind);
+                leftChainsPanel.updateUI();
             }
         });
         rightUpdate.addActionListener(l -> {
             int ind = Integer.parseInt(index.getText());
-            String newValue = JOptionPane.showInputDialog("New value of chain");
-            stringsFromGrammar.set(ind, newValue.split(":"));
-            rightChainsPanel.remove(ind);
-            rightChainsPanel.add(new JLabel(newValue), ind);
+            String newValue = JOptionPane.showInputDialog(null, "New value of chain");
+            if (newValue != null) {
+                stringsFromGrammar.set(ind, newValue.split(":"));
+                rightChainsPanel.remove(ind);
+                rightChainsPanel.add(new JLabel(newValue), ind);
+                rightChainsPanel.updateUI();
+            }
         });
         leftUpdate.addActionListener(l -> {
             int ind = Integer.parseInt(index.getText());
-            String newValue = JOptionPane.showInputDialog("New value of chain");
-            stringsFromExpression.set(ind, newValue.split(":"));
-            leftChainsPanel.remove(ind);
-            leftChainsPanel.add(new JLabel(newValue), ind);
+            String newValue = JOptionPane.showInputDialog(null, "New value of chain");
+            if (newValue != null) {
+                stringsFromExpression.set(ind, newValue.split(":"));
+                leftChainsPanel.remove(ind);
+                leftChainsPanel.add(new JLabel(newValue), ind);
+                leftChainsPanel.updateUI();
+            }
         });
         leftAdd.addActionListener(l -> {
-            if(index.getText().isBlank()){
-                int ind = Integer.parseInt(index.getText());
-                String newValue = JOptionPane.showInputDialog("Value of new chain");
-                stringsFromExpression.add(ind, newValue.split(":"));
-                leftChainsPanel.add(new JLabel(newValue), ind);
-            } else {
-                String newValue = JOptionPane.showInputDialog("Value of new chain");
-                stringsFromExpression.add(newValue.split(":"));
-                leftChainsPanel.add(new JLabel(newValue));
+            String newValue = JOptionPane.showInputDialog(null, "Value of new chain");
+            if (newValue != null) {
+                if (!index.getText().isBlank()) {
+                    int ind = Integer.parseInt(index.getText());
+                    stringsFromExpression.add(ind, newValue.split(":"));
+                    leftChainsPanel.add(new JLabel(newValue), ind);
+                } else {
+                    stringsFromExpression.add(newValue.split(":"));
+                    leftChainsPanel.add(new JLabel(newValue));
+                }
             }
+            leftChainsPanel.updateUI();
         });
         rightAdd.addActionListener(l -> {
-            if(index.getText().isBlank()){
-                int ind = Integer.parseInt(index.getText());
-                String newValue = JOptionPane.showInputDialog("Value of new chain");
-                stringsFromGrammar.add(ind, newValue.split(":"));
-                rightChainsPanel.add(new JLabel(newValue), ind);
-            } else {
-                String newValue = JOptionPane.showInputDialog("Value of new chain");
-                stringsFromGrammar.add(newValue.split(":"));
-                rightChainsPanel.add(new JLabel(newValue));
+            String newValue = JOptionPane.showInputDialog(null, "Value of new chain");
+            if (newValue != null) {
+                if (!index.getText().isBlank()) {
+                    int ind = Integer.parseInt(index.getText());
+                    stringsFromGrammar.add(ind, newValue.split(":"));
+                    rightChainsPanel.add(new JLabel(newValue), ind);
+                } else {
+                    stringsFromGrammar.add(newValue.split(":"));
+                    rightChainsPanel.add(new JLabel(newValue));
+                }
             }
+            rightChainsPanel.updateUI();
         });
 
         JButton about = new JButton("About author");
@@ -172,10 +182,10 @@ public class Frame extends JFrame {
             }
         });
         inputPane.add(expression);
-        JButton fromExpressionToChains = new JButton("Generate chains");
-        inputPane.add(fromExpressionToChains);
         JButton fromExpressionToGrammar = new JButton("Generate grammar");
         inputPane.add(fromExpressionToGrammar);
+        JButton fromExpressionToChains = new JButton("Generate chains");
+        inputPane.add(fromExpressionToChains);
 
         JTextArea grammar = new JTextArea();
         expressionPane.add(new JLabel("Grammar:"));
@@ -258,17 +268,103 @@ public class Frame extends JFrame {
         });
 
         validate.addActionListener(l -> {
-            if(normalState){
+            if (normalState) {
                 rightScroll.setVisible(false);
-                centerPane.updateUI();
+                leftChainsPanel.removeAll();
 
-                rightAdd.setEnabled(false);
-            } else{
+                Set<String> firstChains = new HashSet<>(stringsFromExpression.size());
+                stringsFromExpression.forEach(s -> firstChains.add(s[0].trim()));
+                Set<String> secondChains = new HashSet<>(stringsFromGrammar.size());
+                stringsFromGrammar.forEach(s -> secondChains.add(s[0].trim()));
+                if (firstChains.equals(secondChains)) {
+                    JLabel equallyLabel = new JLabel("Equally");
+                    equallyLabel.setForeground(Color.GREEN);
+                    leftChainsPanel.add(equallyLabel);
+                } else {
+                    Set<String> intersection = new HashSet<>(firstChains);
+                    intersection.retainAll(secondChains);
+                    firstChains.removeAll(intersection);
+                    secondChains.removeAll(intersection);
+
+                    Iterator<String> firstIterator = firstChains.iterator();
+                    Iterator<String> secondIterator = secondChains.iterator();
+                    String firstString, secondString;
+                    StringBuilder firstStringBuilder, secondStringBuilder;
+                    int start = -1, end, min;
+                    boolean good;
+                    while (firstIterator.hasNext() && secondIterator.hasNext()) {
+                        firstString = firstIterator.next();
+                        secondString = secondIterator.next();
+                        firstStringBuilder = new StringBuilder(firstString);
+                        secondStringBuilder = new StringBuilder(secondString);
+                        min = Math.min(firstString.length(), secondString.length());
+                        if (firstString.charAt(0) == secondString.charAt(0) && // два спооба нахождения различий
+                                firstString.charAt(firstString.length() - 1) == secondString.charAt(secondString.length() - 1)) {
+                            for (int i = 1; i < min; i++) {
+                                if (firstString.charAt(i) != secondString.charAt(i)) {
+                                    start = i;
+                                    break;
+                                }
+                            }
+                            end = -1;
+                            for (int i = 2; i < min; i++) {
+                                if (firstString.charAt(firstString.length() - i) !=
+                                        secondString.charAt(secondString.length() - i)) {
+                                    end = i - 1;
+                                    break;
+                                }
+                            }
+                            if (end == -1) {
+                                end = min - start;
+                            }
+                            leftChainsPanel.add(new JLabel(firstStringBuilder
+                                    .insert(start, '<')
+                                    .insert(firstStringBuilder.length() - end, '>')
+                                    .append(" != ")
+                                    .append(secondStringBuilder
+                                            .insert(start, '<')
+                                            .insert(secondStringBuilder.length() - end, '>')).toString()));
+                        } else {
+                            good = true;
+                            for (int i = 0, symbolCount = 0; i < min; i++) {
+                                if (good && firstString.charAt(i) != secondString.charAt(i)) {
+                                    good = false;
+                                    firstStringBuilder.insert(i + symbolCount, '<');
+                                    secondStringBuilder.insert(i + symbolCount, '<');
+                                    symbolCount++;
+                                } else if (!good && firstString.charAt(i) == secondString.charAt(i)) {
+                                    good = true;
+                                    firstStringBuilder.insert(i + symbolCount, '>');
+                                    secondStringBuilder.insert(i + symbolCount, '>');
+                                    symbolCount++;
+                                }
+                            }
+                            if (!good) {
+                                firstStringBuilder.append('>');
+                                secondStringBuilder.append('>');
+                            }
+                            leftChainsPanel.add(new JLabel(firstStringBuilder.append(" != ").append(secondStringBuilder).toString()));
+                        }
+                    }
+                    while (firstIterator.hasNext()) {
+                        leftChainsPanel.add(new JLabel("Chains from grammar not contains: " + firstIterator.next()));
+                    }
+                    while (secondIterator.hasNext()) {
+                        leftChainsPanel.add(new JLabel("Chains from regular expression now contains: " + secondIterator.next()));
+                    }
+                }
+            } else {
+                leftChainsPanel.removeAll();
+                stringsFromExpression.forEach(s -> leftChainsPanel.add(new JLabel(s[0] + ": " + (s.length > 1 ? s[1] : ""))));
                 rightScroll.setVisible(true);
-                centerPane.updateUI();
-
-                rightAdd.setEnabled(true);
             }
+            rightAdd.setEnabled(!normalState);
+            rightUpdate.setEnabled(!normalState);
+            rightDelete.setEnabled(!normalState);
+            leftAdd.setEnabled(!normalState);
+            leftUpdate.setEnabled(!normalState);
+            leftDelete.setEnabled(!normalState);
+            centerPane.updateUI();
             normalState = !normalState;
         });
 
