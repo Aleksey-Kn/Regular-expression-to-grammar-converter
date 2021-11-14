@@ -272,16 +272,16 @@ public class Frame extends JFrame {
                 rightScroll.setVisible(false);
                 leftChainsPanel.removeAll();
 
-                Set<String> firstChains = new HashSet<>(stringsFromExpression.size());
+                Set<String> firstChains = new TreeSet<>();
                 stringsFromExpression.forEach(s -> firstChains.add(s[0].trim()));
-                Set<String> secondChains = new HashSet<>(stringsFromGrammar.size());
+                Set<String> secondChains = new TreeSet<>();
                 stringsFromGrammar.forEach(s -> secondChains.add(s[0].trim()));
                 if (firstChains.equals(secondChains)) {
                     JLabel equallyLabel = new JLabel("Equally");
                     equallyLabel.setForeground(Color.GREEN);
                     leftChainsPanel.add(equallyLabel);
                 } else {
-                    Set<String> intersection = new HashSet<>(firstChains);
+                    Set<String> intersection = new TreeSet<>(firstChains);
                     intersection.retainAll(secondChains);
                     firstChains.removeAll(intersection);
                     secondChains.removeAll(intersection);
