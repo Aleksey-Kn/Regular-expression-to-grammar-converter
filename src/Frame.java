@@ -347,10 +347,10 @@ public class Frame extends JFrame {
                         }
                     }
                     while (firstIterator.hasNext()) {
-                        leftChainsPanel.add(new JLabel("Chains from grammar not contains: " + firstIterator.next()));
+                        leftChainsPanel.add(new JLabel("Right pane not contain: " + firstIterator.next()));
                     }
                     while (secondIterator.hasNext()) {
-                        leftChainsPanel.add(new JLabel("Chains from regular expression now contains: " + secondIterator.next()));
+                        leftChainsPanel.add(new JLabel("Left pane not contain: " + secondIterator.next()));
                     }
                 }
             } else {
