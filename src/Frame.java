@@ -225,7 +225,7 @@ public class Frame extends JFrame {
                 leftChainsPanel.add(exceptionLabel);
                 e.printStackTrace();
             }
-            leftChainsPanel.updateUI();
+            chainsPane.updateUI();
         });
         fromExpressionToGrammar.addActionListener(l -> {
             grammar.setForeground(Color.BLACK);
@@ -264,7 +264,7 @@ public class Frame extends JFrame {
                 rightChainsPanel.add(exceptionLabel);
                 e.printStackTrace();
             }
-            rightChainsPanel.updateUI();
+            chainsPane.updateUI();
         });
 
         validate.addActionListener(l -> {
